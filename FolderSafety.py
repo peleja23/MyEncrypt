@@ -2,7 +2,7 @@ import os
 import sys
 import subprocess
 
-def GetFiles(path, file_type):
+def getFiles(path, file_type):
     # keep this function it might work as a filter later on
     files = os.listdir(path)
     file = []
@@ -14,7 +14,7 @@ def GetFiles(path, file_type):
                 file.append(f)
         return file
 
-def RunFileSafety(operation, password, files, path):
+def runFileSafety(operation, password, files, path):
     for file in files:
         file_path = os.path.join(path, file)
         if not os.path.isdir(os.path.join(path, file)):
@@ -24,13 +24,18 @@ def RunFileSafety(operation, password, files, path):
                 print(f"Execution failed")
 
 def main():
-
+    # The user needs to give 5 arguments
+    if len(sys.argv) != 5:
+        print("Please insert the arguments in this order: python/python3 -script.py -operation -password -folder -type_of_file")
+        return
+    
     operation = sys.argv[1]
     password = sys.argv[2]
     input_folder = sys.argv[3]
     file_type = sys.argv[4]
-    files = GetFiles(input_folder, file_type)
-    RunFileSafety(operation, password, files, input_folder)
+
+    files = getFiles(input_folder, file_type)
+    runFileSafety(operation, password, files, input_folder)
 
 if __name__ == '__main__':
     main()
