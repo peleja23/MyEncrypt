@@ -3,6 +3,24 @@ import subprocess
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QInputDialog, QFileDialog, QMessageBox, QLineEdit
 
+def finish_Fun():
+
+    print("Finished")
+    end = QMessageBox()
+    end.setIcon(QMessageBox.Information)
+    end.setText("Finished!")
+    end.setWindowTitle("Done")
+    end.exec_()
+
+def error_handle(miss):
+
+    error = QMessageBox()
+    error.setIcon(QMessageBox.Critical)
+    error.setText("Error")
+    error.setInformativeText(f'Missing {miss}')
+    error.setWindowTitle("Error")
+    error.exec_()
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -126,43 +144,29 @@ class MainWindow(QMainWindow):
             self.show_pass.setText("🔑-> ******")
             self.button_show_pass.setText("Show") 
         else:  
-            self.show_pass.setText(f"🔑->{self.password}")  # Show password text
-            self.button_show_pass.setText("Hide")  # Change button text to Hide
+            self.show_pass.setText(f"🔑->{self.password}") 
+            self.button_show_pass.setText("Hide")  
 
     def execute(self):
         if self.mode is None:
             print("Error: No mode selected (Encrypt or Decrypt)")
-            error = QMessageBox()
-            error.setIcon(QMessageBox.Critical)
-            error.setText("Error")
-            error.setInformativeText('Missing Mode')
-            error.setWindowTitle("Error")
-            error.exec_()
+            error_handle('Mode')
             return
 
         if self.target_path is None:
             print("Error: No path defined")
-            error = QMessageBox()
-            error.setIcon(QMessageBox.Critical)
-            error.setText("Error")
-            error.setInformativeText('Missing path')
-            error.setWindowTitle("Error")
-            error.exec_()
+            error_handle('Path')
             return
         
         if self.password is None:
             print("Error: No password entered")
-            error = QMessageBox()
-            error.setIcon(QMessageBox.Critical)
-            error.setText("Error")
-            error.setInformativeText('Missing Password')
-            error.setWindowTitle("Error")
-            error.exec_()
+            error_handle('Password')
             return
 
         elif self.flag == 0:
             try:
                 subprocess.run(["python3", "FileSafety.py", self.mode, self.password, self.target_path, self.target_path])
+                finish_Fun()
             except subprocess.CalledProcessError:
                 print(f"Execution failed")
             return
@@ -170,6 +174,7 @@ class MainWindow(QMainWindow):
         elif self.flag == 1:
             try:
                 subprocess.run(["python3", "FolderSafety.py", self.mode, self.password, self.target_path, self.filter])
+                finish_Fun()
             except subprocess.CalledProcessError:
                 print(f"Execution failed")
             return
