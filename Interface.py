@@ -151,9 +151,6 @@ class MainWindow(QMainWindow):
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    palette = QPalette()
-    palette.setColor(QPalette.ButtonText, QColor(37, 161, 144))
-    app.setPalette(palette)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
