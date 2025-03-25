@@ -1,8 +1,7 @@
 import sys
 import subprocess
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette, QColor, QIcon
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QInputDialog, QFileDialog, QMessageBox
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QInputDialog, QFileDialog, QMessageBox, QLineEdit
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -15,6 +14,7 @@ class MainWindow(QMainWindow):
         self.button_File = QPushButton("File", self)
         self.button_Folder = QPushButton("Folder", self)
         self.button_pass = QPushButton("Insert Password", self)
+        self.button_show_pass = QPushButton("Show", self)
         self.button_ok = QPushButton("Ok", self)
         self.initUI()
 
@@ -45,9 +45,13 @@ class MainWindow(QMainWindow):
         self.button_Folder.setStyleSheet("font-size: 20px; background-color: rgb(37, 161, 144); color: yellow;border-radius: 5px; border: 2px solid rgb(10, 10, 10);")
         self.button_Folder.clicked.connect(self.selectFolder)
 
-        self.button_pass.setGeometry(175, 300, 160, 50)  
+        self.button_pass.setGeometry(172, 300, 160, 50)  
         self.button_pass.setStyleSheet("font-size: 20px; background-color: rgb(37, 161, 144); color: yellow;border-radius: 5px; border: 2px solid rgb(10, 10, 10);")
         self.button_pass.clicked.connect(self.showPasswordInsert) 
+
+        self.button_show_pass.setGeometry(115, 348, 50, 50)  
+        self.button_show_pass.setStyleSheet("font-size: 15px; background-color: transparent; color: rgb(37, 161, 144);border-radius: 5px; ")
+        self.button_show_pass.clicked.connect(self.togglePasswordVisibility)
 
         self.button_ok.setGeometry(350, 400, 50, 50)  
         self.button_ok.setStyleSheet("font-size: 20px; background-color: rgb(37, 161, 144); color: yellow;border-radius: 5px; border: 2px solid rgb(10, 10, 10);")
@@ -55,13 +59,18 @@ class MainWindow(QMainWindow):
 
         self.select_mode = QLabel(self)
         self.select_mode.move(190, 62)
-        self.select_mode.setStyleSheet("font-size: 20px;border-radius: 5px")
+        self.select_mode.setStyleSheet("font-size: 20px;")
         self.select_mode.resize(150,22)
 
         self.select_path = QLabel(self)
         self.select_path.move(65, 262)
-        self.select_path.setStyleSheet("font-size: 15px;border-radius: 5px")
+        self.select_path.setStyleSheet("font-size: 15px;")
         self.select_path.resize(1000,22)
+
+        self.show_pass = QLabel(self)
+        self.show_pass.move(165, 362)
+        self.show_pass.setStyleSheet("font-size: 15px;")
+        self.show_pass.resize(1000,22)
 
         self.show()
 
@@ -80,7 +89,8 @@ class MainWindow(QMainWindow):
             self.select_mode.setText("⚠️Decription")
 
     def selectFolder(self):
-        folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
+        init_dir = "C:/Users/Pedro Peleja/Desktop"
+        folder_path = QFileDialog.getExistingDirectory(self, init_dir, "Select Folder")
         if folder_path:  
             print(f"Selected Folder: {folder_path}")
             filter, ok = QInputDialog.getText(self, 'Filter', 'Enter filter:')
@@ -94,7 +104,8 @@ class MainWindow(QMainWindow):
             self.flag = 1
 
     def selectFile(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Select File", "", "All Files (*);;Text Files (*.txt);;Images (*.png *.jpg *.jpeg)")
+        init_dir = "C:/Users/Pedro Peleja/Desktop"
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select File", init_dir, "All Files (*);;Text Files (*.txt);;Images (*.png *.jpg *.jpeg)")
         if file_path:
             print(f"Selected File: {file_path}")
             self.select_path.setText(f"📄->{file_path}")
@@ -106,7 +117,18 @@ class MainWindow(QMainWindow):
         if ok:
             print(password)
             self.password = password
-    
+            self.show_pass.setText(f"🔑->{self.password}")
+            self.button_show_pass.setText("Hide") 
+
+    def togglePasswordVisibility(self):
+        
+        if self.show_pass.text() == f"🔑->{self.password}":
+            self.show_pass.setText("🔑-> ******")
+            self.button_show_pass.setText("Show") 
+        else:  
+            self.show_pass.setText(f"🔑->{self.password}")  # Show password text
+            self.button_show_pass.setText("Hide")  # Change button text to Hide
+
     def execute(self):
         if self.mode is None:
             print("Error: No mode selected (Encrypt or Decrypt)")
@@ -116,15 +138,7 @@ class MainWindow(QMainWindow):
             error.setInformativeText('Missing Mode')
             error.setWindowTitle("Error")
             error.exec_()
-
-        if self.password is None:
-            print("Error: No password entered")
-            error = QMessageBox()
-            error.setIcon(QMessageBox.Critical)
-            error.setText("Error")
-            error.setInformativeText('Missing Password')
-            error.setWindowTitle("Error")
-            error.exec_()
+            return
 
         if self.target_path is None:
             print("Error: No path defined")
@@ -134,6 +148,17 @@ class MainWindow(QMainWindow):
             error.setInformativeText('Missing path')
             error.setWindowTitle("Error")
             error.exec_()
+            return
+        
+        if self.password is None:
+            print("Error: No password entered")
+            error = QMessageBox()
+            error.setIcon(QMessageBox.Critical)
+            error.setText("Error")
+            error.setInformativeText('Missing Password')
+            error.setWindowTitle("Error")
+            error.exec_()
+            return
 
         elif self.flag == 0:
             try:
